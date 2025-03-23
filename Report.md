@@ -119,6 +119,8 @@ print(f"✅ Raw Transaction Created: {raw_transaction}\n")
 
 9. **Locking Script**: The locking script (`scriptPubKey`) defines the conditions that must be met to spend the funds. It is included in the transaction's outputs and typically contains a cryptographic hash of the recipient's public key.
 
+Also about the transactions used in series from B to C, we can see that the transaction from A to B is used as a UTXO as is evident from the `vin` field of the former being equal to the `txid` of the latter.
+
 ### Decoded Scripts for Transactions
 
 #### Transaction 1
@@ -395,3 +397,59 @@ The challenge and response scripts ensure the validity of transactions by utiliz
 4. **Example**:
    - In Transaction 1, the unlocking script (`00141ec774325912bb16be1b7d89056efe08d475992c`) satisfies the locking script (`OP_HASH160 683897bab503841ef95f12e6e54ed97fca3cf337 OP_EQUAL`) for Address B.
    - In Transaction 2, the unlocking script (`0014e27237dfb950414ea473149a4adc17972f91ace1`) satisfies the locking script (`OP_HASH160 b8cf71d88132816cb409bd335938cfbfeadb6edd OP_EQUAL`) for Address C.
+
+# Question 3
+
+## Legacy
+
+![3.png](./imgs/3.png)
+
+## Segwit
+
+![3.png](./imgs/1-1.png)
+
+### Comparison of P2PKH and P2SH-P2WPKH Transactions
+
+#### Script Structures
+
+1. **P2PKH (Legacy)**:
+
+   - **Locking Script (scriptPubKey)**: `OP_DUP OP_HASH160 <PubKeyHash> OP_EQUALVERIFY OP_CHECKSIG`
+   - **Unlocking Script (scriptSig)**: `<Signature> <PublicKey>`
+   - The locking script ensures that only the owner of the private key corresponding to the public key hash can spend the funds.
+
+2. **P2SH-P2WPKH (SegWit)**:
+   - **Locking Script (scriptPubKey)**: `OP_HASH160 <RedeemScriptHash> OP_EQUAL`
+   - **Redeem Script**: `0 <PubKeyHash>` (embedded in the witness data)
+   - **Witness Data**: `<Signature> <PublicKey>`
+   - The witness data is separated from the transaction body, reducing the size of the transaction.
+
+#### Size Comparison
+
+- **P2PKH**:
+
+  - Larger transaction size due to the inclusion of the unlocking script in the transaction body.
+  - Higher weight and vbyte usage.
+
+- **P2SH-P2WPKH**:
+  - Smaller transaction size as the witness data is stored separately.
+  - Lower weight and vbyte usage, leading to reduced transaction fees.
+
+#### Benefits of SegWit Transactions
+
+1. **Reduced Transaction Size**:
+
+   - By moving the witness data outside the transaction body, SegWit transactions are smaller in size compared to legacy transactions.
+
+2. **Lower Fees**:
+
+   - The reduced size directly translates to lower transaction fees, as fees are calculated based on the transaction size in vbytes.
+
+3. **Mitigation of Transaction Malleability**:
+
+   - SegWit prevents changes to the transaction ID by separating the witness data, which is not included in the transaction hash.
+
+4. **Increased Block Capacity**:
+   - The reduced size of SegWit transactions allows more transactions to fit within a block, improving the overall throughput of the blockchain.
+
+This comparison highlights the efficiency and cost-effectiveness of SegWit transactions over legacy transactions.
